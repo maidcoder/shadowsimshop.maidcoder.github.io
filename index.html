@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>ShadowSim — Advanced SMS Interception Software for the UK, US &amp; Canada</title>
+<meta name="description" content="ShadowSim is advanced SMS interception software engineered to monitor and capture cellular traffic across four major carrier networks in the UK, US, and Canada.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ShadowSim — mobile-first. Restrained neutral palette, one accent. */
+  :root{
+    --ink:#17181d;          /* text + primary surfaces */
+    --ink-2:#3c3f47;        /* secondary text */
+    --muted:#6b6e77;        /* tertiary text */
+    --bg:#ffffff;
+    --paper:#f7f7f4;        /* warm off-white sections */
+    --paper-2:#f1f1ec;
+    --line:#e7e6e1;         /* warm hairline */
+    --line-2:#efeee9;
+    --accent:#4b46e5;       /* single accent, used sparingly */
+    --accent-tint:#eeedfc;
+    --amber:#d99b32;        /* review stars only */
+    --radius:14px;
+    --shadow-sm:0 1px 2px rgba(20,20,26,.05);
+    --shadow:0 10px 34px rgba(20,20,26,.08);
+    --shadow-lg:0 22px 54px rgba(20,20,26,.14);
+    --maxw:1120px;
+    --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+    --disp:'Space Grotesk','Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--sans);background:var(--bg);color:var(--ink);
+    font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+    padding-bottom:calc(70px + env(safe-area-inset-bottom));
+  }
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px;width:100%}
+  section{scroll-margin-top:72px}
+  .ico svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  /* type */
+  h1{font-family:var(--disp);font-size:clamp(2.05rem,8.4vw,3.4rem);line-height:1.06;letter-spacing:-.02em;font-weight:600}
+  h2.title{font-family:var(--disp);font-size:clamp(1.6rem,6vw,2.5rem);line-height:1.12;letter-spacing:-.02em;font-weight:600;margin:12px 0 12px}
+  h3{font-size:1.14rem;font-weight:600;letter-spacing:-.01em}
+  h4{font-size:1.02rem;font-weight:600}
+  h5{font-size:.74rem;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);font-weight:600}
+  .lead{color:var(--muted);font-size:clamp(1rem,4vw,1.15rem);line-height:1.6;max-width:600px}
+  .eyebrow{display:inline-block;color:var(--accent);font-weight:600;letter-spacing:.02em;font-size:.8rem;margin-bottom:4px}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--sans);font-weight:600;font-size:.98rem;letter-spacing:-.01em;min-height:50px;padding:13px 22px;border-radius:11px;cursor:pointer;border:1px solid transparent;transition:background .15s,border-color .15s,color .15s,transform .1s;line-height:1}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--ink);color:#fff}
+  .btn-primary:hover{background:#2b2d35}
+  .btn-ghost{background:var(--bg);border-color:var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--ink)}
+  .btn .ico svg{width:18px;height:18px}
+
+  .tag{display:inline-flex;align-items:center;gap:8px;font-size:.76rem;font-weight:600;letter-spacing:.02em;color:var(--muted);padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg)}
+  .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+
+  /* announcement */
+  .bar{background:var(--ink);color:#fff;text-align:center;font-size:.82rem;padding:9px 16px;font-weight:500}
+  .bar b{font-weight:600}
+  .bar .sep{color:#6d6f79;margin:0 10px}
+
+  /* nav */
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-inner{position:relative;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 20px;max-width:var(--maxw);margin:0 auto}
+  .logo{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:600;font-size:1.16rem;letter-spacing:-.01em}
+  .logo-mark{width:30px;height:30px;border-radius:8px;background:var(--ink);display:grid;place-items:center;flex:none}
+  .logo-mark svg{width:16px;height:16px;stroke:#fff;stroke-width:1.9;fill:none;stroke-linecap:round}
+  .logo .dot{color:var(--accent)}
+  .nav-links{display:none;flex-direction:column}
+  .nav-links a{padding:13px 2px;font-weight:500;color:var(--ink-2);border-bottom:1px solid var(--line-2)}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{display:flex;align-items:center;gap:10px}
+  .nav-cta .btn{min-height:42px;padding:9px 16px;font-size:.9rem;border-radius:9px}
+  .nav-cta .btn-ghost{display:none}
+  .hamburger{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;flex:none}
+  .hamburger svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round}
+  .nav.open .nav-links{display:flex;position:absolute;top:100%;left:0;right:0;background:var(--bg);padding:6px 20px 14px;box-shadow:var(--shadow)}
+
+  /* hero */
+  .hero{padding:44px 0 12px;text-align:center}
+  .hero-grid{display:flex;flex-direction:column;gap:34px;align-items:center}
+  .hero h1{margin-top:16px}
+  .hero p.sub{color:var(--muted);font-size:clamp(1.02rem,4.2vw,1.2rem);margin:16px auto 26px;max-width:520px}
+  .hero-cta{display:flex;flex-direction:column;gap:11px;width:100%;max-width:340px;margin:0 auto}
+  .hero-cta .btn{width:100%}
+  .trust-row{display:grid;grid-template-columns:repeat(2,1fr);gap:20px 12px;margin-top:34px;width:100%;max-width:430px}
+  .trust-row .t b{font-family:var(--disp);font-size:1.5rem;font-weight:600;display:block;line-height:1.1}
+  .trust-row .t span{color:var(--muted);font-size:.8rem}
+
+  /* phone — clean light console */
+  .phone{position:relative;margin:2px auto 0;width:min(270px,72vw);aspect-ratio:270/548;border-radius:38px;background:var(--ink);padding:11px;box-shadow:var(--shadow-lg)}
+  .phone-scr{width:100%;height:100%;border-radius:28px;background:#fbfbf9;overflow:hidden;position:relative;padding:22px 13px 14px;display:flex;flex-direction:column;gap:9px}
+  .phone-scr .bar-top{display:flex;justify-content:space-between;font-size:.66rem;color:var(--muted);font-weight:500;padding:0 4px 2px}
+  .phone-scr .head{display:flex;align-items:center;gap:7px;font-family:var(--disp);font-weight:600;font-size:.92rem;padding:0 4px 6px;border-bottom:1px solid var(--line-2)}
+  .phone-scr .head .live{margin-left:auto;font-family:var(--sans);font-size:.62rem;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:5px}
+  .phone-scr .head .live i{width:6px;height:6px;border-radius:50%;background:var(--accent);display:block}
+  .row{border:1px solid var(--line);background:#fff;border-radius:11px;padding:9px 10px;font-size:.72rem;color:var(--ink-2);opacity:0;transform:translateY(8px);animation:pop .5s forwards}
+  .row .lb{display:block;font-size:.58rem;font-weight:600;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+  .row.out{background:var(--ink);border-color:var(--ink);color:#e8e8ea;margin-left:26px}
+  .row.out .lb{color:#9a9ba3}
+  .row:nth-child(3){animation-delay:.25s}.row:nth-child(4){animation-delay:.8s}
+  .row:nth-child(5){animation-delay:1.35s}.row:nth-child(6){animation-delay:1.9s}
+  @keyframes pop{to{opacity:1;transform:none}}
+
+  /* carriers */
+  .carriers{padding:38px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--paper)}
+  .carriers .kick{text-align:center;color:var(--muted);font-size:.88rem;margin-bottom:18px}
+  .carrier-tabs{display:inline-flex;gap:4px;padding:4px;background:var(--bg);border:1px solid var(--line);border-radius:12px;margin:0 auto 22px}
+  .carriers .tabwrap{display:flex;justify-content:center}
+  .ctab{cursor:pointer;padding:9px 16px;border-radius:9px;font-family:var(--sans);font-weight:600;font-size:.86rem;background:transparent;border:0;color:var(--muted);transition:.15s;min-height:38px}
+  .ctab.active{color:#fff;background:var(--ink)}
+  .ctab:not(.active):hover{color:var(--ink)}
+  .carrier-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .carrier{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 14px;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
+  .carrier .logo-chip{width:100%;max-width:150px;height:46px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:1.1rem;letter-spacing:-.02em}
+  .carrier .cname{font-weight:600;font-size:.92rem}
+  .carrier .cnet{font-size:.66rem;font-weight:600;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+
+  /* sections */
+  .sec{padding:60px 0}
+  .center{text-align:center}
+  .center .lead{margin-left:auto;margin-right:auto}
+  .paper{background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+
+  /* features */
+  .feat-grid{display:grid;grid-template-columns:1fr;gap:0;margin-top:36px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--bg)}
+  .feat{padding:26px 22px;border-bottom:1px solid var(--line);text-align:left}
+  .feat:last-child{border-bottom:0}
+  .feat-ic{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:var(--paper);border:1px solid var(--line);color:var(--ink);margin-bottom:14px}
+  .feat h3{margin-bottom:6px}
+  .feat p{color:var(--muted);font-size:.95rem}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:1fr;gap:14px;margin-top:36px}
+  .step{padding:22px 20px;background:var(--bg);border:1px solid var(--line);border-radius:14px;text-align:left}
+  .step .num{font-family:var(--disp);font-size:.85rem;font-weight:600;color:var(--accent);letter-spacing:.08em;margin-bottom:10px}
+  .step h4{margin-bottom:5px}
+  .step p{color:var(--muted);font-size:.92rem}
+
+  /* pricing */
+  .country-switch{display:grid;grid-template-columns:1fr;gap:8px;margin:24px auto 4px;max-width:520px}
+  .cbtn{display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:13px 18px;border-radius:11px;font-family:var(--sans);font-weight:600;font-size:.98rem;background:var(--bg);border:1px solid var(--line);color:var(--ink-2);transition:.15s;min-height:52px}
+  .cbtn .cc{font-family:var(--disp);font-size:.72rem;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+  .cbtn.active{color:#fff;background:var(--ink);border-color:var(--ink)}
+  .cbtn.active .cc{color:#fff;border-color:#4a4c55}
+
+  .price-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:24px}
+  .price{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:26px 22px;position:relative;text-align:left}
+  .price.pop{background:var(--ink);border-color:var(--ink);color:#fff}
+  .badge-pop{position:absolute;top:18px;right:18px;font-size:.64rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:#fff;color:var(--ink)}
+  .price .plan{font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+  .price.pop .plan{color:#a9aab2}
+  .price .amt{font-family:var(--disp);font-size:2.4rem;font-weight:600;letter-spacing:-.02em;margin:10px 0 4px;transition:.18s}
+  .price .amt small{font-family:var(--sans);font-size:.9rem;font-weight:500;color:var(--muted);letter-spacing:0}
+  .price.pop .amt small{color:#a9aab2}
+  .price .save{display:inline-block;font-size:.78rem;font-weight:500;color:var(--ink-2);margin-bottom:14px}
+  .price.pop .save{color:#c8c9cf}
+  .price ul{list-style:none;margin:16px 0 22px;display:flex;flex-direction:column;gap:11px}
+  .price li{display:flex;gap:9px;font-size:.93rem;color:var(--ink-2);align-items:flex-start;line-height:1.45}
+  .price.pop li{color:#d6d6da}
+  .price li .ico{color:var(--accent);flex:none;margin-top:1px}
+  .price.pop li .ico{color:#fff}
+  .price li .ico svg{width:17px;height:17px}
+  .price .btn{width:100%}
+  .price.pop .btn-primary{background:#fff;color:var(--ink)}
+  .price.pop .btn-primary:hover{background:#ececea}
+  .guarantee{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:22px;color:var(--muted);font-size:.88rem}
+  .guarantee .ico svg{width:17px;height:17px}
+
+  /* band */
+  .band-grid{display:flex;flex-direction:column}
+  .band-img{min-height:230px;background-size:cover;background-position:center;filter:grayscale(.15)}
+  .band-copy{padding:46px 20px;text-align:left}
+  .band-copy .lead{margin-left:0}
+  .band-check{margin-top:22px;display:flex;flex-direction:column;gap:12px}
+  .band-check div{display:flex;gap:10px;align-items:flex-start;color:var(--ink-2);font-size:.96rem}
+  .band-check .ico{color:var(--accent);flex:none;margin-top:1px}
+  .band-check .ico svg{width:18px;height:18px}
+
+  /* testimonials */
+  .tgrid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:36px}
+  .tcard{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:24px;text-align:left}
+  .stars{color:var(--amber);font-size:.9rem;letter-spacing:2px;margin-bottom:12px}
+  .tcard p{font-size:.96rem;color:var(--ink-2)}
+  .tuser{display:flex;align-items:center;gap:12px;margin-top:18px}
+  .tuser img{width:44px;height:44px;border-radius:50%;object-fit:cover;filter:grayscale(1)}
+  .tuser b{font-size:.92rem;display:block;font-weight:600}
+  .tuser span{font-size:.8rem;color:var(--muted)}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--bg)}
+  .stat{text-align:center;padding:28px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .stat:nth-child(2n){border-right:0}
+  .stat:nth-last-child(-n+2){border-bottom:0}
+  .stat b{font-family:var(--disp);font-size:2rem;font-weight:600;display:block;line-height:1.1}
+  .stat span{color:var(--muted);font-size:.82rem}
+
+  /* faq */
+  .faq{max-width:800px;margin:32px auto 0;text-align:left;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .qa{border-bottom:1px solid var(--line);background:var(--bg)}
+  .qa:last-child{border-bottom:0}
+  .qa summary{list-style:none;cursor:pointer;padding:18px 20px;font-weight:600;font-size:.98rem;display:flex;justify-content:space-between;align-items:center;gap:14px}
+  .qa summary::-webkit-details-marker{display:none}
+  .qa summary .pm{transition:.2s;color:var(--muted);flex:none}
+  .qa summary .pm svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round}
+  .qa[open] summary .pm{transform:rotate(45deg);color:var(--accent)}
+  .qa .ans{padding:0 20px 20px;color:var(--muted);font-size:.94rem}
+
+  /* cta */
+  .cta{text-align:center;padding:52px 22px;border-radius:20px;background:var(--ink);color:#fff}
+  .cta h2{font-family:var(--disp);font-size:clamp(1.55rem,6vw,2.4rem);font-weight:600;letter-spacing:-.02em}
+  .cta p{color:#b7b8bf;font-size:clamp(1rem,4vw,1.12rem);margin:14px auto 22px;max-width:520px}
+  .countdown{display:flex;gap:8px;justify-content:center;margin:24px 0;flex-wrap:wrap}
+  .cd{background:#25272e;border:1px solid #33353d;border-radius:11px;padding:11px 14px;min-width:64px}
+  .cd b{font-family:var(--disp);font-size:1.6rem;font-weight:600;display:block;font-variant-numeric:tabular-nums}
+  .cd span{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:#8a8c95}
+  .cta .btn-primary{background:#fff;color:var(--ink)}
+  .cta .btn-primary:hover{background:#ececea}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:46px 0 30px;background:var(--paper)}
+  .foot-grid{display:grid;grid-template-columns:1fr;gap:28px}
+  .foot-grid h5{margin-bottom:14px}
+  .foot-grid a{display:block;color:var(--ink-2);font-size:.93rem;margin-bottom:9px}
+  .foot-grid a:hover{color:var(--ink)}
+  .foot-bottom{border-top:1px solid var(--line);margin-top:34px;padding-top:20px;display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:.82rem}
+  .disclaimer{color:#98999f;font-size:.76rem;max-width:760px;margin-top:14px;line-height:1.6}
+
+  /* toast */
+  .toast{position:fixed;left:12px;right:12px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:70;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 15px;display:flex;gap:11px;align-items:center;box-shadow:var(--shadow-lg);transform:translateY(180%);transition:transform .45s cubic-bezier(.2,.9,.3,1.15);max-width:330px}
+  .toast.show{transform:none}
+  .toast .tdot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
+  .toast b{font-size:.85rem;font-weight:600}
+  .toast span{font-size:.79rem;color:var(--muted)}
+
+  /* mobile purchase bar */
+  .mobar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);transition:transform .3s ease}
+  .mobar .mo-price{font-size:.8rem;color:var(--muted);line-height:1.25}
+  .mobar .mo-price b{display:block;font-family:var(--disp);font-size:1.02rem;color:var(--ink);font-weight:600}
+  .mobar .btn{min-height:44px;padding:10px 18px;font-size:.92rem;flex:none}
+  body:has(.modal-overlay.show) .mobar{transform:translateY(120%)}
+
+  /* checkout */
+  .modal-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(23,24,29,.42);backdrop-filter:blur(3px)}
+  .modal-overlay.show{display:flex;animation:fade .22s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{width:100%;max-width:450px;background:var(--bg);border:1px solid var(--line);border-radius:18px 18px 0 0;padding:24px 22px calc(24px + env(safe-area-inset-bottom));position:relative;box-shadow:var(--shadow-lg);animation:sheet .3s cubic-bezier(.2,.9,.3,1.1)}
+  @keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+  .modal-x{position:absolute;top:14px;right:14px;background:none;border:0;color:var(--muted);cursor:pointer;width:34px;height:34px;display:grid;place-items:center}
+  .modal-x svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round}
+  .modal h3{font-family:var(--disp);font-size:1.25rem;margin:12px 0 16px;font-weight:600}
+  .co-line{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line-2);font-size:.93rem;color:var(--muted)}
+  .co-line b{color:var(--ink);font-weight:600}
+  .co-line.total{border-bottom:0;font-size:.98rem;margin-bottom:6px}
+  .co-line.total b{font-family:var(--disp);font-size:1.4rem}
+  .co-label{display:block;font-size:.82rem;color:var(--muted);margin:14px 0 8px;font-weight:500}
+  .co-input{width:100%;padding:14px 15px;border-radius:11px;font-size:1rem;font-family:var(--sans);background:var(--paper);border:1px solid var(--line);color:var(--ink);outline:none;min-height:52px}
+  .co-input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-tint)}
+  .co-err{color:#c02b3d;font-size:.82rem;min-height:18px;margin:8px 0 0}
+  .co-fine{color:#98999f;font-size:.75rem;margin-top:14px;line-height:1.5}
+  .btn.loading{opacity:.65;pointer-events:none}
+
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+
+  /* larger screens */
+  @media(min-width:560px){
+    .carrier-row{grid-template-columns:repeat(4,1fr)}
+    .country-switch{grid-template-columns:repeat(3,1fr)}
+    .feat-grid{grid-template-columns:repeat(2,1fr)}
+    .feat{border-right:1px solid var(--line)}
+    .feat:nth-child(2n){border-right:0}
+    .steps{grid-template-columns:repeat(2,1fr)}
+    .stats{grid-template-columns:repeat(4,1fr)}
+    .stat{border-bottom:0}
+    .stat:nth-child(2n){border-right:1px solid var(--line)}
+    .stat:last-child{border-right:0}
+    .tgrid{grid-template-columns:repeat(3,1fr)}
+    .hero-cta{flex-direction:row;max-width:none;justify-content:center}
+    .hero-cta .btn{width:auto}
+    .trust-row{grid-template-columns:repeat(4,1fr);max-width:none}
+  }
+  @media(min-width:900px){
+    body{padding-bottom:0}
+    .mobar{display:none}
+    .toast{left:24px;right:auto;bottom:24px}
+    .sec{padding:92px 0}
+    .hero{padding:76px 0 34px;text-align:left}
+    .hero-grid{flex-direction:row;gap:48px;align-items:center}
+    .hero-grid>div:first-child{flex:1.05}
+    .hero-grid>div:last-child{flex:.95}
+    .hero p.sub,.hero-cta,.trust-row{margin-left:0}
+    .hero-cta{justify-content:flex-start}
+    .feat-grid{grid-template-columns:repeat(3,1fr)}
+    .feat{border-right:1px solid var(--line)}
+    .feat:nth-child(2n){border-right:1px solid var(--line)}
+    .feat:nth-child(3n){border-right:0}
+    .feat:nth-child(-n+3){border-bottom:1px solid var(--line)}
+    .feat:nth-last-child(-n+3){border-bottom:0}
+    .steps{grid-template-columns:repeat(4,1fr)}
+    .price-grid{grid-template-columns:repeat(3,1fr);align-items:start}
+    .band-grid{flex-direction:row;align-items:stretch}
+    .band-img{flex:1;min-height:480px}
+    .band-copy{flex:1;padding:72px 56px;display:flex;flex-direction:column;justify-content:center}
+    .foot-grid{grid-template-columns:1.7fr 1fr 1fr 1fr}
+    .foot-bottom{flex-direction:row;justify-content:space-between}
+    .nav-links{display:flex;flex-direction:row;gap:28px;position:static;font-size:.92rem}
+    .nav-links a{border:0;padding:0}
+    .nav-cta .btn-ghost{display:inline-flex}
+    .hamburger{display:none}
+    .cta{padding:78px 40px}
+    .modal-overlay{align-items:center}
+    .modal{border-radius:18px;padding:30px 28px}
+  }
+</style>
+</head>
+<body>
+
+<!-- announcement -->
+
+
+<!-- nav -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="logo">
+      
+      ShadowSim</span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#features">Features</a>
+      <a href="#how">How it Works</a>
+      <a href="#carriers">Networks</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="nav-cta">
+      
+      <a href="#pricing" class="btn btn-primary">Get Started</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<!-- hero -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="tag"><span class="dot"></span> SMS Interception · v4.0</span>
+        <h1>ShadowSIM Real‑time SMS Interception via SS7</h1>
+        <p class="sub">ShadowSim provides authorized monitoring and real-time capture of SMS packets across four major carrier networks in the UK, United States, and Canada featuring passive collection and encrypted relay.</p>
+        <div class="hero-cta">
+          <a href="#pricing" class="btn btn-primary">View Licensing</a>
+          <a href="#how" class="btn btn-ghost">How it Works</a>
+        </div>
+        <div class="trust-row">
+          <div class="t"><b>4</b><span>Carrier networks</span></div>
+          <div class="t"><b>99.9%</b><span>Capture uptime</span></div>
+          <div class="t"><b>3</b><span>Countries live</span></div>
+          <div class="t"><b>24/7</b><span>Priority support</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="phone-scr">
+            <div class="bar-top"><span>9:41</span><span>5G</span></div>
+            <div class="head">Console <span class="live"><i></i> Live</span></div>
+            <div class="row"><span class="lb">Gateway</span>Target Linked — Passive intercept active on Network 01</div>
+            <div class="row out"><span class="lb">2FA Bypass</span>OTP intercepted: Auth code 8842 logged in 0.4s</div>
+            <div class="row"><span class="lb">Today</span>2,481 packets intercepted · Zero trace</div>
+            <div class="row out"><span class="lb">Relay</span>Data mirrored across secure nodes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- carriers -->
+<section class="carriers" id="carriers">
+  <div class="wrap">
+    <p class="kick" id="carrierHeading">Targeting four major carrier networks in the UK</p>
+    <div class="tabwrap">
+      <div class="carrier-tabs" id="carrierTabs">
+        <button class="ctab active" data-c="uk">UK</button>
+        <button class="ctab" data-c="usa">United States</button>
+        <button class="ctab" data-c="canada">Canada</button>
+      </div>
+    </div>
+    <div class="carrier-row" id="carrierRow"><!-- injected by JS --></div>
+  </div>
+</section>
+
+<!-- features -->
+<section class="sec" id="features">
+  <div class="wrap center">
+    <span class="eyebrow reveal">Core Capabilities</span>
+    <h2 class="title reveal">Engineered for undetectable packet capture</h2>
+    <p class="lead reveal">A complete toolkit for authorized cellular monitoring, engineered to capture live SMS traffic and instantly extract OTPs and 2FA codes without alerting the target.</p>
+
+    <div class="feat-grid">
+      <div class="feat reveal">
+        <div class="feat-ic ico"><svg viewBox="0 0 24 24"><path d="M13 3 5 13h6l-1 8 9-11h-6z"/></svg></div>
+        <h3>Real-time OTP & 2FA Bypass</h3>
+        <p>Packets are captured and relayed to your console in under a second, allowing for immediate extraction of One-Time Passwords to seamlessly bypass security prompts without latency.</p>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-ic ico"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg></div>
+        <h3>Encrypted relay</h3>
+        <p>All captured sessions and packets are protected with AES-256 before transit. Your interception data stays fully localized.</p>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-ic ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.3 2.4 14.7 0 17M12 3.5c-2.4 2.3-2.4 14.7 0 17"/></svg></div>
+        <h3>Cross-border targeting</h3>
+        <p>Purpose-built to exploit vulnerabilities in UK, US, and Canadian network protocols out of the box.</p>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-ic ico"><svg viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><path d="M8 17v-4M13 17V9M18 17V6"/></svg></div>
+        <h3>Live telemetry dashboards</h3>
+        <p>Track capture rates, target lock status, and network handshakes in real time from a secure control console.</p>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-ic ico"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8"/><path d="M20 4v4h-4"/><path d="M20 12a8 8 0 0 1-13.7 5.6L4 16"/><path d="M4 20v-4h4"/></svg></div>
+        <h3>Adaptive network hopping</h3>
+        <p>If a target switches towers or a carrier attempts throttling, ShadowSim dynamically follows the cellular footprint.</p>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-ic ico"><svg viewBox="0 0 24 24"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M20 19a4 4 0 0 1-4 3h-2"/></svg></div>
+        <h3>Tactical support</h3>
+        <p>Deploy with confidence. Real engineers are on standby around the clock for priority troubleshooting on operational deployments.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- how -->
+<section class="sec paper" id="how">
+  <div class="wrap center">
+    <span class="eyebrow reveal">How it Works</span>
+    <h2 class="title reveal">Initialize capture in four steps</h2>
+    <p class="lead reveal">Designed for rapid deployment. Install the software, configure the target parameters, and begin monitoring.</p>
+    <div class="steps">
+      <div class="step reveal"><div class="num">STEP 01</div><h4>Select a license</h4><p>Pick your target region and license tier — weekly, monthly, or perpetual.</p></div>
+      <div class="step reveal"><div class="num">STEP 02</div><h4>Initialize node</h4><p>Download and configure the ShadowSim daemon for Windows, macOS, or Linux environments.</p></div>
+      <div class="step reveal"><div class="num">STEP 03</div><h4>Lock target networks</h4><p>Bind the software to the specific cellular bands of the four supported carriers.</p></div>
+      <div class="step reveal"><div class="num">STEP 04</div><h4>Commence interception</h4><p>Monitor traffic, extract payload data, and analyze SMS packets instantly via the dashboard.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- band -->
+<section class="band">
+  <div class="band-grid">
+    <div class="band-img" style="background-image:url('https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=80')"></div>
+    <div class="band-copy">
+      <span class="eyebrow reveal">The Architecture</span>
+      <h2 class="title reveal">Military-grade interception, accessible via software.</h2>
+      <p class="lead reveal">ShadowSim leverages advanced SS7 and signaling flaws to pair real-time cellular monitoring with an intuitive software layer. Scale from a single target to widespread network sweeps.</p>
+      <div class="band-check">
+        <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Passive monitoring across all four domestic networks</div>
+        <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Direct compatibility with UK, US, and Canadian bands</div>
+        <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Raw packet extraction and automated decryption reports</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- pricing -->
+<section class="sec" id="pricing">
+  <div class="wrap center">
+    <span class="eyebrow reveal">Licensing</span>
+    <h2 class="title reveal">Select your deployment region</h2>
+    <p class="lead reveal">Procurement is localized per region. Select a jurisdiction to view licensing tiers.</p>
+
+    <div class="country-switch" id="countrySwitch">
+      <button class="cbtn active" data-c="uk"><span class="cc">UK</span> United Kingdom</button>
+      <button class="cbtn" data-c="usa"><span class="cc">US</span> United States</button>
+      <button class="cbtn" data-c="canada"><span class="cc">CA</span> Canada</button>
+    </div>
+
+    <div class="price-grid">
+      <div class="price reveal">
+        <div class="plan">Weekly</div>
+        <div class="amt" data-plan="week">$249<small> /week</small></div>
+        <span class="save" data-save="week">Try it out</span>
+        <ul>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Active monitoring for 7 days</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Access to all 4 regional carriers</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Capture up to 1,000 packets/day</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Live telemetry dashboard</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Email support</li>
+        </ul>
+        <a href="#" class="btn btn-ghost buy" data-plan="Weekly">Get Weekly</a>
+      </div>
+
+      <div class="price pop reveal">
+        <span class="badge-pop">Most popular</span>
+        <div class="plan">Monthly</div>
+        <div class="amt" data-plan="month">$599<small> /month</small></div>
+        <span class="save" data-save="month">Best for regular use</span>
+        <ul>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Everything in Weekly</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Capture up to 10,000 packets/day</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Adaptive target tracking</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Priority 24/7 support</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Advanced packet analysis & exports</li>
+        </ul>
+        <a href="#" class="btn btn-primary buy" data-plan="Monthly">Get Monthly</a>
+      </div>
+
+      <div class="price reveal">
+        <div class="plan">Lifetime</div>
+        <div class="amt" data-plan="life">$7,999<small> once</small></div>
+        <span class="save" data-save="life">Pay once, own forever</span>
+        <ul>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Everything in Monthly</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Unlimited packet interception</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Lifetime free updates</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> Dedicated account manager</li>
+          <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span> All future carrier exploits included</li>
+        </ul>
+        <a href="#" class="btn btn-ghost buy" data-plan="Lifetime">Get Lifetime</a>
+      </div>
+    </div>
+    <div class="guarantee">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.5 3 7.4 7 9 4-1.6 7-4.5 7-9V6z"/></svg></span>
+      7-day satisfaction guarantee · Secure checkout · Cancel anytime on recurring plans
+    </div>
+  </div>
+</section>
+
+<!-- stats -->
+<section class="sec" style="padding-top:8px">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><b data-count="12">0</b><span>Million+ packets captured</span></div>
+      <div class="stat"><b data-count="8500">0</b><span>Active deployments</span></div>
+      <div class="stat"><b data-count="99">0</b><span>Interception rate</span></div>
+      <div class="stat"><b data-count="4">0</b><span>Target networks</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- testimonials -->
+<section class="sec paper">
+  <div class="wrap center">
+    <span class="eyebrow reveal">Deployments</span>
+    <h2 class="title reveal">Relied upon by security professionals</h2>
+    <p class="lead reveal">Security teams and analysts across the UK, US, and Canada rely on ShadowSim.</p>
+    <div class="tgrid">
+      <div class="tcard reveal">
+        <div class="stars">★★★★★</div>
+        <p>"We upgraded our forensic toolkit to ShadowSim. The interception is completely passive and the tracking between networks is flawlessly executed."</p>
+        <div class="tuser"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt=""><div><b>James Whitfield</b><span>London, United Kingdom</span></div></div>
+      </div>
+      <div class="tcard reveal">
+        <div class="stars">★★★★★</div>
+        <p>"The perpetual license proved invaluable for our audit operations. Support provided crucial guidance during a complex network sweep at 3am."</p>
+        <div class="tuser"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt=""><div><b>Ashley Rivera</b><span>Austin, United States</span></div></div>
+      </div>
+      <div class="tcard reveal">
+        <div class="stars">★★★★★</div>
+        <p>"Advanced capabilities disguised in clean software. It penetrates real carrier networks and the telemetry dashboards provide exact intelligence. The premier monitoring tool in Canada."</p>
+        <div class="tuser"><img src="https://randomuser.me/api/portraits/men/76.jpg" alt=""><div><b>Daniel Tremblay</b><span>Toronto, Canada</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Add this after the testimonials section and before the FAQ section -->
+
+<!-- about -->
+<section class="sec paper" id="about">
+  <div class="wrap center">
+    <span class="eyebrow reveal">About ShadowSim</span>
+    <h2 class="title reveal">A Private Law Enforcement Agency</h2>
+    <p class="lead reveal" style="max-width: 700px;">ShadowSim is operated by a private law enforcement agency based in the United States, working in direct collaboration with major carriers to ensure lawful interception and monitoring of cellular communications.</p>
+    
+    <div style="display:grid;grid-template-columns:1fr;gap:24px;margin-top:40px;text-align:left;max-width:800px;margin-left:auto;margin-right:auto;">
+      <div class="reveal" style="background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:24px;">
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="background:var(--accent-tint);border-radius:10px;padding:10px;flex:none;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+          </div>
+          <div>
+            <h4 style="margin-bottom:6px;">Authorized Partnership with Carriers</h4>
+            <p style="color:var(--muted);font-size:.95rem;">We maintain formal collaboration agreements with EE, Three, Vodafone, O2, Verizon, T-Mobile, AT&T, Dish Mobile, Rogers, Bell, Telus, and Freedom Mobile to ensure all interception activities are conducted within legal frameworks.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="reveal" style="background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:24px;">
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="background:var(--accent-tint);border-radius:10px;padding:10px;flex:none;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M8 16v-8"/><path d="M12 16V9"/><path d="M16 16v-3"/></svg>
+          </div>
+          <div>
+            <h4 style="margin-bottom:6px;">Lawful Interception Operations</h4>
+            <p style="color:var(--muted);font-size:.95rem;">All monitoring activities are conducted under strict legal authorization for security auditing, forensic investigations, and authorized surveillance operations across the United Kingdom, United States, and Canada.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="reveal" style="background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:24px;">
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="background:var(--accent-tint);border-radius:10px;padding:10px;flex:none;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div>
+            <h4 style="margin-bottom:6px;">Global Coverage & Compliance</h4>
+            <p style="color:var(--muted);font-size:.95rem;">Operating across three jurisdictions with full compliance to local surveillance laws, data protection regulations, and international standards for lawful interception.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- contact -->
+<section class="sec" id="contact">
+  <div class="wrap center">
+    <span class="eyebrow reveal">Get in Touch</span>
+    <h2 class="title reveal">Contact ShadowSim</h2>
+    <p class="lead reveal" style="max-width: 500px;">For inquiries, support, or partnership opportunities, reach out to our team.</p>
+    
+    <div style="display:grid;grid-template-columns:1fr;gap:20px;margin-top:40px;max-width:500px;margin-left:auto;margin-right:auto;">
+      <div class="reveal" style="background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:24px;text-align:left;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="background:var(--accent-tint);border-radius:10px;padding:10px;flex:none;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+          </div>
+          <div>
+            <div style="font-size:.8rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;">Email</div>
+            <a href="mailto:nollandarts773@gmail.com" style="font-weight:600;font-size:1.05rem;color:var(--ink);word-break:break-all;">nollandarts773@gmail.com</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="reveal" style="background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:24px;text-align:left;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="background:var(--accent-tint);border-radius:10px;padding:10px;flex:none;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div>
+            <div style="font-size:.8rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;">Telegram</div>
+            <a href="https://t.me/shadowsimstore" target="_blank" rel="noopener" style="font-weight:600;font-size:1.05rem;color:var(--ink);">@shadowsimstore</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="reveal" style="margin-top:30px;padding:20px;background:var(--paper);border:1px solid var(--line);border-radius:12px;max-width:500px;margin-left:auto;margin-right:auto;">
+      <p style="color:var(--muted);font-size:.9rem;margin:0;">Response time: <strong style="color:var(--ink);">24-48 hours</strong> · All inquiries handled with discretion</p>
+    </div>
+  </div>
+</section>
+
+<!-- faq -->
+<section class="sec" id="faq">
+  <div class="wrap center">
+    <span class="eyebrow reveal">FAQ</span>
+    <h2 class="title reveal">Frequently asked questions</h2>
+    <div class="faq">
+      <details class="qa"><summary>Which countries and carriers does ShadowSim support?<span class="pm ico"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">ShadowSim is available across the United Kingdom, United States, and Canada, working with four major carrier networks in each region to passively intercept SMS data. Region-aware targeting picks the optimal frequency.</div></details>
+      <details class="qa"><summary>What's the difference between weekly, monthly and lifetime?<span class="pm ico"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">Weekly and monthly are recurring licenses for short-term ops or ongoing surveillance. Lifetime provides perpetual access to the software and future vulnerability updates.</div></details>
+      <details class="qa"><summary>Can i intercept bank or social platform OTP codes?<span class="pm ico"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">Yes, ShadowSim can intercept OTP codes from banking and social media platforms..</div></details>
+      <details class="qa"><summary>Which operating systems are supported?<span class="pm ico"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">ShadowSim runs on Windows, macOS and Linux. Download links are delivered instantly after checkout, along with your licence key and a setup guide.</div></details>
+      <details class="qa"><summary>How secure is my data?<span class="pm ico"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">All intercepted sessions and payloads are protected with AES-256 encryption. We maintain a zero-log policy—your gathered intelligence remains strictly on your local node.</div></details>
+      <details class="qa"><summary>Do you offer a guarantee?<span class="pm ico"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">Yes. Every plan includes a 7-day satisfaction guarantee. If ShadowSim isn't the right fit, reach out to support within 7 days.</div></details>
+      <details class="qa"><summary>Can I upgrade my plan later?<span class="pm ico"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary><div class="ans">Yes. You can upgrade from weekly or monthly to lifetime at any time from your dashboard, and we credit your current cycle toward the upgrade.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- cta -->
+<section class="wrap" style="padding-bottom:20px">
+  <div class="cta">
+    <h2>Ready to deploy advanced SMS interception?</h2>
+    <p>Equip your team with the leading monitoring solution in the UK, US, and Canada. Lock in deployment pricing before it expires.</p>
+    <div class="countdown" id="countdown">
+      <div class="cd"><b id="cd-d">02</b><span>Days</span></div>
+      <div class="cd"><b id="cd-h">00</b><span>Hours</span></div>
+      <div class="cd"><b id="cd-m">00</b><span>Mins</span></div>
+      <div class="cd"><b id="cd-s">00</b><span>Secs</span></div>
+    </div>
+    <a href="#pricing" class="btn btn-primary">Secure your license</a>
+  </div>
+</section>
+
+<!-- footer -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="#top" class="logo">
+          
+          Shadow<span class="dot">Sim</span>
+        </a>
+        <p style="color:var(--muted);font-size:.92rem;margin-top:14px;max-width:340px">Advanced SMS interception software for the UK, US, and Canada. Stealthy, encrypted, and engineered to monitor four major carrier networks.</p>
+      </div>
+      <div>
+        <h5>Product</h5>
+        <a href="#features">Capabilities</a><a href="#how">Deployment</a><a href="#pricing">Licensing</a><a href="#carriers">Networks</a>
+      </div>
+      <div>
+        <h5>Company</h5>
+        <a href="#about">About</a><a href="#contact">Contact</a><a href="#faq">FAQ</a>
+      </div>
+      
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 ShadowSim. All rights reserved.</span>
+      <span>United Kingdom · United States · Canada</span>
+    </div>
+    <p class="disclaimer">ShadowSim is intended for lawful, authorized security auditing and forensic monitoring only. Users are strictly responsible for complying with all applicable local, national, and international laws regarding surveillance and data interception. Prices shown are in USD.</p>
+  </div>
+</footer>
+
+<!-- checkout -->
+<div class="modal-overlay" id="checkout">
+  <div class="modal">
+    <button class="modal-x" id="modalClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <span class="tag"><span class="dot"></span> Secure checkout · Paymento</span>
+    <h3 id="coTitle">ShadowSim — Monthly</h3>
+    <div class="co-line"><span>Region</span><b id="coRegion">United Kingdom</b></div>
+    <div class="co-line"><span>Licence</span><b id="coPlan">Monthly</b></div>
+    <div class="co-line total"><span>Total (USD)</span><b id="coPrice">$599</b></div>
+    <label class="co-label" for="coEmail">Your email — the download link is sent here right after payment</label>
+    <input type="email" id="coEmail" class="co-input" placeholder="you@example.com" autocomplete="email" inputmode="email">
+    <p class="co-err" id="coErr"></p>
+    <button class="btn btn-primary" id="coPay" style="width:100%;margin-top:6px">Pay and get download link</button>
+    <p class="co-fine">You'll be redirected to Paymento to pay in crypto. Your download link and licence key are emailed instantly on confirmation.</p>
+  </div>
+</div>
+
+<!-- mobile purchase bar -->
+<div class="mobar" id="mobar">
+  <div class="mo-price">Plans from<b id="mobarPrice">$249 / week</b></div>
+  <a href="#pricing" class="btn btn-primary">See plans</a>
+</div>
+
+<!-- toast -->
+<div class="toast" id="toast">
+  <span class="tdot"></span>
+  <div><b id="toast-name">James in London</b><br><span id="toast-msg">purchased a Monthly licence</span></div>
+</div>
+
+<script>
+  const API_BASE = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
+    ? 'http://localhost:3000' : '';
+
+  // Pricing (display only — server re-validates the amount)
+  const PRICES = {
+    uk:     {name:'United Kingdom', week:'$249', month:'$599', life:'$7,999',
+             save:{week:'Try it out', month:'Best for regular use', life:'Pay once, own forever'}},
+    usa:    {name:'United States',  week:'$239', month:'$499', life:'$4,999',
+             save:{week:'Try it out', month:'Save vs weekly', life:'Pay once, own forever'}},
+    canada: {name:'Canada',         week:'$179', month:'$459', life:'$2,599',
+             save:{week:'Try it out', month:'Save vs weekly', life:'Pay once, own forever'}}
+  };
+  const suffix = {week:' /week', month:' /month', life:' once'};
+
+// Carrier wordmarks using local SVG logos
+  const LOGO = (svgFile, alt) => `<div class="logo-chip"><img src="${svgFile}" alt="${alt}" style="display:block;max-width:120px;height:auto;max-height:35px;width:auto;object-fit:contain;"></div>`;
+  
+  const CARRIERS = {
+    uk:[
+      {n:'EE',      chip:LOGO('EE.svg', 'EE')},
+      {n:'Three',   chip:LOGO('Three.svg', 'Three')},
+      {n:'Vodafone',chip:LOGO('Vodafone.svg', 'Vodafone')},
+      {n:'O2',      chip:LOGO('O2.svg', 'O2')}
+    ],
+    usa:[
+      {n:'Verizon',    chip:LOGO('Verizon.svg', 'Verizon')},
+      {n:'T-Mobile',   chip:LOGO('tmobile.svg', 'T-Mobile')},
+      {n:'AT&T',       chip:LOGO('AT&T.svg', 'AT&T')},
+      {n:'Dish Mobile',chip:LOGO('dish.svg', 'DISH')}
+    ],
+    canada:[
+      {n:'Rogers',        chip:LOGO('Rogers.svg', 'Rogers')},
+      {n:'Bell',          chip:LOGO('Bell.svg', 'Bell')},
+      {n:'Telus',         chip:LOGO('Telus.svg', 'TELUS')},
+      {n:'Freedom Mobile',chip:LOGO('freedommobile.svg', 'Freedom Mobile')}
+    ]
+  };
+  const COUNTRY_LABEL = {uk:'the UK', usa:'the United States', canada:'Canada'};
+
+  let current = 'uk';
+
+  function renderCarriers(c){
+    document.getElementById('carrierRow').innerHTML = CARRIERS[c].map(k=>`
+      <div class="carrier">${k.chip}<span class="cname">${k.n}</span><span class="cnet">4G · 5G</span></div>`).join('');
+    document.getElementById('carrierHeading').textContent = 'Four major carrier networks in '+COUNTRY_LABEL[c];
+  }
+  function renderPrices(c){
+    const d = PRICES[c];
+    document.querySelectorAll('.amt').forEach(el=>{
+      const p = el.dataset.plan;
+      el.innerHTML = d[p] + '<small>'+suffix[p]+'</small>';
+      el.style.transform='scale(1.05)'; setTimeout(()=>el.style.transform='scale(1)',170);
+    });
+    document.querySelectorAll('.save').forEach(el=>{ el.textContent = d.save[el.dataset.save]; });
+    const mp = document.getElementById('mobarPrice'); if(mp) mp.textContent = d.week + ' / week';
+  }
+  function setCountry(c){
+    current = c;
+    document.querySelectorAll('[data-c]').forEach(b=>{
+      if(b.classList.contains('ctab')||b.classList.contains('cbtn')) b.classList.toggle('active', b.dataset.c===c);
+    });
+    renderCarriers(c); renderPrices(c);
+  }
+  document.querySelectorAll('.ctab, #countrySwitch .cbtn').forEach(btn=>btn.addEventListener('click',()=>setCountry(btn.dataset.c)));
+  setCountry('uk');
+
+  // Mobile menu
+  const nav = document.getElementById('nav');
+  document.getElementById('hamburger').addEventListener('click',()=>nav.classList.toggle('open'));
+  document.querySelectorAll('#navLinks a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
+
+  // Checkout
+  const modal = document.getElementById('checkout');
+  const coEmail = document.getElementById('coEmail');
+  const coErr = document.getElementById('coErr');
+  const coPay = document.getElementById('coPay');
+  let selected = {plan:'Monthly', planKey:'month'};
+  const PLANKEY = {Weekly:'week', Monthly:'month', Lifetime:'life'};
+  function openCheckout(plan){
+    const d = PRICES[current], key = PLANKEY[plan];
+    selected = {plan, planKey:key};
+    document.getElementById('coTitle').textContent = 'ShadowSim — '+plan;
+    document.getElementById('coRegion').textContent = d.name;
+    document.getElementById('coPlan').textContent = plan;
+    document.getElementById('coPrice').textContent = d[key];
+    coErr.textContent=''; coEmail.value='';
+    modal.classList.add('show');
+    setTimeout(()=>coEmail.focus(),120);
+  }
+  function closeCheckout(){ modal.classList.remove('show'); }
+  document.getElementById('modalClose').addEventListener('click',closeCheckout);
+  modal.addEventListener('click',e=>{ if(e.target===modal) closeCheckout(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeCheckout(); });
+  document.querySelectorAll('.buy').forEach(b=>b.addEventListener('click',e=>{ e.preventDefault(); openCheckout(b.dataset.plan); }));
+
+  coPay.addEventListener('click', async ()=>{
+    const email = coEmail.value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ coErr.textContent='Please enter a valid email address.'; return; }
+    coErr.textContent=''; coPay.classList.add('loading'); coPay.textContent='Creating secure order…';
+    try{
+      const res = await fetch(API_BASE+'/api/checkout',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({country:current, plan:selected.planKey, email})
+      });
+      const data = await res.json();
+      if(!res.ok || !data.redirectUrl) throw new Error(data.error||'Could not start checkout.');
+      window.location.href = data.redirectUrl;
+    }catch(err){
+      coErr.textContent = err.message + ' Please try again or contact support.';
+      coPay.classList.remove('loading'); coPay.textContent='Pay and get download link';
+    }
+  });
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((es)=>{es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{ el.style.transitionDelay=(i%3*0.07)+'s'; io.observe(el); });
+
+  // Count up
+  const statIO = new IntersectionObserver((es)=>{es.forEach(en=>{
+    if(!en.isIntersecting) return;
+    const el=en.target, target=+el.dataset.count; let n=0; const step=Math.max(1,Math.ceil(target/60));
+    const tick=()=>{ n+=step; if(n>=target){el.textContent=fmt(target,el);} else {el.textContent=fmt(n,el); requestAnimationFrame(tick);} };
+    tick(); statIO.unobserve(el);
+  });},{threshold:.5});
+  function fmt(n,el){const t=+el.dataset.count; if(t===12)return n+'M'; if(t===8500)return n.toLocaleString(); if(t===99)return n+'%'; return n;}
+  document.querySelectorAll('[data-count]').forEach(el=>statIO.observe(el));
+
+  // Countdown
+  const end = Date.now() + (2*24*3600 + 8*3600 + 41*60)*1000;
+  function tickCd(){
+    let diff = Math.max(0, end - Date.now());
+    const d=Math.floor(diff/86400000); diff-=d*86400000;
+    const h=Math.floor(diff/3600000); diff-=h*3600000;
+    const m=Math.floor(diff/60000); diff-=m*60000;
+    const s=Math.floor(diff/1000); const pad=x=>String(x).padStart(2,'0');
+    document.getElementById('cd-d').textContent=pad(d);
+    document.getElementById('cd-h').textContent=pad(h);
+    document.getElementById('cd-m').textContent=pad(m);
+    document.getElementById('cd-s').textContent=pad(s);
+  }
+  setInterval(tickCd,1000); tickCd();
+
+  // Recent-activity notice
+  const events=[['James in London','Lifetime'],['Ashley in New York','Monthly'],['Daniel in Toronto','Weekly'],
+    ['Sarah in Manchester','Lifetime'],['Marcus in Los Angeles','Monthly'],['Chloe in Vancouver','Monthly']];
+  const toast=document.getElementById('toast');
+  function showToast(name,msg){
+    document.getElementById('toast-name').textContent=name;
+    document.getElementById('toast-msg').textContent=msg;
+    toast.classList.add('show'); clearTimeout(showToast._t);
+    showToast._t=setTimeout(()=>toast.classList.remove('show'),4200);
+  }
+  let ei=0;
+  function nextToast(){
+    const e = events[ei++ % events.length];
+    showToast(e[0], 'purchased a '+e[1]+' licence');
+    setTimeout(nextToast, 11000 + Math.random()*6000);
+  }
+  setTimeout(nextToast, 5000);
+</script>
+</body>
+</html>
